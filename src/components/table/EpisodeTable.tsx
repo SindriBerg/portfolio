@@ -61,7 +61,7 @@ export function EpisodeTable(props: SubTableProps) {
 
   return (
     <motion.div
-      className="sub-table"
+      id="episode-table"
       initial={{
         height: 0,
         opacity: 0,
@@ -76,9 +76,9 @@ export function EpisodeTable(props: SubTableProps) {
       }}
       style={{
         overflow: 'hidden',
-        borderBottom: `1px solid gray`,
-        paddingLeft: 100,
-        paddingRight: 30,
+        paddingLeft: 40,
+        paddingRight: 40,
+        paddingBottom: 30,
       }}
     >
       <Grid

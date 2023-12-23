@@ -138,10 +138,14 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 
 const characterColHelper = createColumnHelper<Character>();
 export const characterColumns = [
+  characterColHelper.accessor('image', {
+    id: 'image',
+    header: () => <Grid xs />,
+  }),
   characterColHelper.accessor('name', {
     id: 'name',
     header: () => (
-      <Grid xs xsOffset={1}>
+      <Grid xs>
         <StyledTypography>Name</StyledTypography>
       </Grid>
     ),

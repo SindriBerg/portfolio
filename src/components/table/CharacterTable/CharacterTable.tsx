@@ -1,12 +1,8 @@
 import {
   Character,
-  Episode,
   GetCharactersDocument,
-  GetEpisodesByIdDocument,
-  GetEpisodesByIdQuery,
 } from '@/gql/__generated__/rick-and-morty-graphql';
 import { isDefined, useDebounce } from '@/utility/helpers';
-import { NetworkStatus, useQuery } from '@apollo/client';
 import { useSuspenseQuery } from '@apollo/experimental-nextjs-app-support/ssr';
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
@@ -14,26 +10,22 @@ import {
   ExpandedState,
   Row,
   SortingState,
-  Table,
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { AnimatePresence, motion } from 'framer-motion';
-import Image from 'next/image';
+import { AnimatePresence } from 'framer-motion';
 import React, {
-  ForwardedRef,
   ReactElement,
-  forwardRef,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
-import { characterColumns, episodeColumns } from '../tableHelper';
+import { characterColumns } from '../tableHelper';
 import { EpisodeTable } from '../EpisodeTable';
 import { TableBodyRenderer } from '../TableBodyRenderer';
 import { CharacterRow } from './CharacterRow';
@@ -53,12 +45,12 @@ const AnimatedExpandableRow = <T,>(
     rowComponent: RowComponent,
   } = props;
   return (
-    <>
+    <Box className="row-wrapper">
       <RowComponent {...row} />
       <AnimatePresence mode="wait">
         {row.getIsExpanded() && <AnimatedChild />}
       </AnimatePresence>
-    </>
+    </Box>
   );
 };
 
