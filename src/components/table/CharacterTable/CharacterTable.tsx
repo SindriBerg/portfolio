@@ -4,7 +4,13 @@ import {
 } from '@/gql/__generated__/rick-and-morty-graphql';
 import { isDefined, useDebounce } from '@/utility/helpers';
 import { useSuspenseQuery } from '@apollo/experimental-nextjs-app-support/ssr';
-import { Box } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Skeleton,
+  TextField,
+  Typography,
+} from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import {
   ExpandedState,
@@ -29,6 +35,9 @@ import { characterColumns } from '../tableHelper';
 import { EpisodeTable } from '../EpisodeTable';
 import { TableBodyRenderer } from '../TableBodyRenderer';
 import { CharacterRow } from './CharacterRow';
+import { useSearchQuery } from '@/components/providers/SearchQueryProvider';
+import { NetworkStatus } from '@apollo/client';
+import { CiSearch } from 'react-icons/ci';
 
 type AnimatedExpandableRowProps<T> = {
   animatedChild: () => ReactElement;
@@ -47,21 +56,148 @@ const AnimatedExpandableRow = <T,>(
   return (
     <Box className="row-wrapper">
       <RowComponent {...row} />
-      <AnimatePresence mode="wait">
-        {row.getIsExpanded() && <AnimatedChild />}
+      <AnimatePresence mode="wait" key={row.id}>
+        {row.getIsExpanded() && <AnimatedChild key={row.id} />}
       </AnimatePresence>
     </Box>
   );
 };
 
+const SearchbarSection = (props: {
+  queryResults: number;
+  isLoading: boolean;
+}) => {
+  const { setSearchQuery } = useSearchQuery();
+
+  return (
+    <Grid columns={12} container padding={2}>
+      <Grid
+        xs={4}
+        display="flex"
+        justifyContent="center"
+        flexDirection="column"
+      >
+        <Typography
+          color="primary.main"
+          variant="h5"
+          fontWeight="bold"
+        >
+          Rick and Morty
+        </Typography>
+        {props.isLoading ? (
+          <Skeleton />
+        ) : (
+          <Typography variant="h6">
+            {props.queryResults} characters found
+          </Typography>
+        )}
+      </Grid>
+      <Grid xs={8} container>
+        <Grid xs={12}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            label={null}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search for a character"
+            InputProps={{
+              startAdornment: (
+                <CiSearch size={24} style={{ marginRight: 10 }} />
+              ),
+            }}
+          />
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+};
+
+const TableFilters = () => {
+  return (
+    <Grid
+      container
+      padding={2}
+      columns={5}
+      className="table-filters"
+      display="flex"
+      flexDirection="row"
+      paddingBlock={1}
+    >
+      <Grid xs={1}>
+        <Autocomplete
+          options={['Alive', 'Dead', 'Unknown']}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              InputLabelProps={{
+                shrink: false,
+              }}
+              label="Status"
+              variant="standard"
+            />
+          )}
+        />
+      </Grid>
+      <Grid xs={1} paddingLeft={3}>
+        <Autocomplete
+          options={['Alive', 'Dead', 'Unknown']}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Status"
+              variant="standard"
+            />
+          )}
+        />
+      </Grid>
+      <Grid xs={1} paddingLeft={3}>
+        <Autocomplete
+          options={['Alive', 'Dead', 'Unknown']}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Status"
+              variant="standard"
+            />
+          )}
+        />
+      </Grid>
+      <Grid xs={1} paddingLeft={3}>
+        <Autocomplete
+          options={['Alive', 'Dead', 'Unknown']}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Status"
+              variant="standard"
+            />
+          )}
+        />
+      </Grid>
+      <Grid xs={1} paddingLeft={3}>
+        <Autocomplete
+          options={['Alive', 'Dead', 'Unknown']}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Status"
+              variant="standard"
+            />
+          )}
+        />
+      </Grid>
+    </Grid>
+  );
+};
+
 export default function CharacterTable() {
-  const [name, setName] = useState<string>('');
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [page, setPage] = useState<number>(1);
   const [sorting, setSorting] = useState<SortingState>([]);
   const tableRef = useRef(null);
+  const { searchQuery } = useSearchQuery();
 
-  const debouncedSearchTerm = useDebounce(name, 500);
+  const debouncedSearchTerm = useDebounce(searchQuery, 500);
 
   const { data, fetchMore, networkStatus } = useSuspenseQuery(
     GetCharactersDocument,
@@ -86,14 +222,7 @@ export default function CharacterTable() {
 
   useEffect(() => {
     resetExpanded();
-  }, [page, name, sorting, resetExpanded]);
-
-  const handleNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setName(e.target.value);
-    },
-    [setName]
-  );
+  }, [page, searchQuery, sorting, resetExpanded]);
 
   const table = useReactTable<Character>({
     data: tableData as Character[],
@@ -163,21 +292,11 @@ export default function CharacterTable() {
       height="100vh"
       overflow="hidden"
     >
-      <Box
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
-        <h1
-          className="ram-font"
-          style={{
-            width: 'fit-content',
-          }}
-        >
-          <span style={{ color: '#359442' }}>Rick and Morty</span>
-        </h1>
-      </Box>
+      <SearchbarSection
+        queryResults={tableData.length}
+        isLoading={networkStatus === NetworkStatus.loading}
+      />
+      <TableFilters />
       <Grid container xs={12}>
         <Grid
           xs={12}
@@ -215,6 +334,7 @@ export default function CharacterTable() {
               row={row}
               animatedChild={() => (
                 <EpisodeTable
+                  key={row.id}
                   episodeUrls={row.original.episode
                     .map((e) => e?.id)
                     .filter(isDefined)}

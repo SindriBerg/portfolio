@@ -21,6 +21,9 @@ const SideNavigation = () => {
         <li>
           <Link href="/tables">Tables</Link>
         </li>
+        <li>
+          <Link href="/messenger">Messenger</Link>
+        </li>
       </ul>
     </nav>
   );
@@ -33,12 +36,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={oswald.className}>
+      <body className={oswald.className + ' h-[100vh]'}>
         <ApolloWrapper>
           <SideNavigation />
           {children}
         </ApolloWrapper>
       </body>
-    </html>
+    </html >
   );
 }

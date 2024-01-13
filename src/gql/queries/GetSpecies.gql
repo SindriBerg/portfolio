@@ -1,0 +1,13 @@
+query GetSpecies($page: Int) {
+  characters(page: $page) {
+    info {
+      count
+      pages
+      next
+      prev
+    }
+    results {
+      species
+    }
+  }
+}

@@ -1,44 +1,43 @@
 'use client';
-import {
-  createTheme,
-  styled,
-  TextField,
-  ThemeProvider,
-} from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material';
 import CharacterTable from '@/components/table/CharacterTable/CharacterTable';
+import { SearchQueryProvider } from '@/components/providers/SearchQueryProvider';
 
 export const myTheme = createTheme({
   palette: {
     primary: {
-      main: '#359442',
+      main: 'rgba(151, 206, 76, 1)',
+      '300': 'rgba(151, 206, 76, 0.3)',
     },
     background: {
-      default: '#16173c',
+      default: '#e4a788',
     },
     secondary: {
-      main: '#359442',
+      main: 'rgba(171, 213, 236, 1)',
+      '300': 'rgba(171, 213, 236, 0.3)',
     },
   },
-});
-
-export const MyTextField = styled(TextField)({
-  // Label of the text field when focused
-  '& label.Mui-focused': {
-    color: myTheme.palette.primary.main,
-  },
-  '& .MuiInput-underline:after': {
-    borderBottomColor: myTheme.palette.primary.main,
-  },
-  '& .MuiOutlinedInput-root': {
-    marginBottom: 20,
-    backgroundColor: 'white',
-    boxShadow: '0px -5px 10px white, -5px 0px 10px white',
-
-    '&:hover fieldset': {
-      borderColor: myTheme.palette.primary.main,
+  components: {
+    MuiInputLabel: {
+      defaultProps: {
+        shrink: false,
+      },
     },
-    '&.Mui-focused fieldset': {
-      borderColor: myTheme.palette.primary.main,
+    MuiTextField: {
+      defaultProps: {
+        variant: 'standard',
+        sx: {
+          '& label': {
+            color: 'primary.main',
+            top: '-20px',
+            fontSize: '12px',
+          },
+          '& .MuiInput-root:hover:not(.Mui-disabled, .Mui-error):before':
+            {
+              borderBottomColor: 'primary.main',
+            },
+        },
+      },
     },
   },
 });
@@ -46,7 +45,9 @@ export const MyTextField = styled(TextField)({
 export default function Tables() {
   return (
     <ThemeProvider theme={myTheme}>
-      <CharacterTable />
+      <SearchQueryProvider>
+        <CharacterTable />
+      </SearchQueryProvider>
     </ThemeProvider>
   );
 }

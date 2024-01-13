@@ -1,7 +1,10 @@
+import { Character, Episode } from '@/gql/__generated__/rick-and-morty-graphql';
 import { QueryFunctionContext } from '@tanstack/react-query';
 import axios from 'axios';
-import qs from 'qs';
-import { APIResponse, Character, Episode } from './api-types';
+
+type APIResponse<T> = {
+  data: T
+}
 
 // This function fetches characters from the API.
 // It accepts a queryFnContext object that contains a tuple consisting of:

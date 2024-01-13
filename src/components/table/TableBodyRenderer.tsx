@@ -16,7 +16,7 @@ function TableBodyRendererInner<T>(
   ref: ForwardedRef<HTMLDivElement>
 ) {
   const { status, table, RowComponent } = props;
-  if (status === 1) {
+  if (status === NetworkStatus.loading) {
     return (
       <Box
         ref={ref}
@@ -50,7 +50,7 @@ function TableBodyRendererInner<T>(
       </Box>
     );
   }
-  if (status === 8) {
+  if (status === NetworkStatus.error) {
     return (
       <Box
         display="flex"

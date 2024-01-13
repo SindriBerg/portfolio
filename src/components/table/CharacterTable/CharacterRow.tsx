@@ -21,9 +21,11 @@ export const CharacterRow = (row: Row<Character>) => (
       sx={{
         cursor: 'pointer',
         '&:hover': {
-          backgroundColor: '#35944220',
+          backgroundColor: 'primary.300',
         },
-        backgroundColor: row.getIsExpanded() ? '#35944220' : 'white',
+        backgroundColor: row.getIsExpanded()
+          ? 'primary.300'
+          : 'white',
         transition: 'all 0.3s ease-in-out',
       }}
       position="sticky"
@@ -58,18 +60,18 @@ export const CharacterRow = (row: Row<Character>) => (
         sx={{
           color:
             row.original.status === 'Alive'
-              ? 'green'
+              ? 'primary.main'
               : row.original.status === 'unknown'
                 ? 'grey'
-                : 'red',
+                : 'error.main',
           textTransform: 'capitalize',
         }}
         xs
       >
         {row.original.status}
       </Grid>
-      <Grid xs>{row.original.gender}</Grid>
       <Grid xs>{row.original.species}</Grid>
+      <Grid xs>{row.original.gender}</Grid>
       <Grid xs>{row.original.origin?.dimension}</Grid>
       <Grid xs>{row.original.episode.length}</Grid>
     </Grid>

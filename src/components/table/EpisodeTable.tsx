@@ -17,6 +17,7 @@ import { useMemo, useCallback, ReactElement } from 'react';
 import { episodeColumns } from './tableHelper';
 import { useQuery } from '@apollo/client';
 import { TableBodyRenderer } from './TableBodyRenderer';
+import uniqueId from 'lodash/uniqueId';
 
 interface SubTableProps {
   episodeUrls: string[];
@@ -61,7 +62,8 @@ export function EpisodeTable(props: SubTableProps) {
 
   return (
     <motion.div
-      id="episode-table"
+      className="episode-table"
+      key={uniqueId('episode-table')}
       initial={{
         height: 0,
         opacity: 0,
@@ -76,9 +78,7 @@ export function EpisodeTable(props: SubTableProps) {
       }}
       style={{
         overflow: 'hidden',
-        paddingLeft: 40,
-        paddingRight: 40,
-        paddingBottom: 30,
+        paddingInline: 40,
       }}
     >
       <Grid
@@ -88,18 +88,13 @@ export function EpisodeTable(props: SubTableProps) {
         minHeight={32}
         alignItems="center"
       >
-        {subTable
-          .getHeaderGroups()
-          .map((hg) =>
-            hg.headers.map((h) => (
-              <Grid xs>
-                {flexRender(
-                  h.column.columnDef.header,
-                  h.getContext()
-                )}
-              </Grid>
-            ))
-          )}
+        {subTable.getHeaderGroups().map((hg) =>
+          hg.headers.map((h) => (
+            <Grid key={h.id} xs>
+              {flexRender(h.column.columnDef.header, h.getContext())}
+            </Grid>
+          ))
+        )}
       </Grid>
       <TableBodyRenderer
         status={networkStatus}

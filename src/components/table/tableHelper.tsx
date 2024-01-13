@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { extractIdFromUrl, isDefined } from '@/utility/helpers';
 import { useQuery } from '@tanstack/react-query';
-import { getCharacterRange } from '@/api/api-service';
+import { getCharacterRange } from '@/api/rick-and-morty-api-service';
 import { ReactNode } from 'react';
 
 function NameCell(props: { name: string; img?: string }) {
@@ -183,7 +183,7 @@ export const characterColumns = [
     ),
     id: 'dimension',
   }),
-  characterColHelper.accessor('episode.characters', {
+  characterColHelper.accessor('episode', {
     header: () => (
       <Grid xs>
         <StyledTypography>Episodes</StyledTypography>
