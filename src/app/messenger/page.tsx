@@ -1,8 +1,7 @@
-import prisma from '@/db';
+import { prisma } from '@/db';
 
 export default async function MessengerPage() {
   const test = await prisma.message.findMany();
-  console.log(test)
   return (
     <div>
       <h1>MessengerRelayPage</h1>

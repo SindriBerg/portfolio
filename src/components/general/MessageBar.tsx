@@ -9,6 +9,7 @@ export default function MessageBar(props: { conversationId: string }) {
     sendMessage(formData, props.conversationId);
     inputRef.current.value = '';
   }
+
   return (
     <div className="py-5 w-full px-5">
       <form action={handleFormAction} className='flex'>

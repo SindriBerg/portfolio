@@ -1,5 +1,5 @@
 import MessageBar from '@/components/general/MessageBar';
-import prisma from '@/db';
+import { prisma } from '@/db';
 import { Avatar } from '@mui/material';
 import { Message, User } from '@prisma/client';
 import Link from 'next/link';
@@ -51,8 +51,12 @@ function MessageList(props: { messages: Message[] }) {
 export default async function MessengerPage({ params }: { params: { userId: string } }) {
   let conversation = await prisma.conversation.findFirst({
     where: {
-      participantIds: {
-        hasEvery: ["65a3eabcb60244adf37015fb", params.userId]
+      participants: {
+        every: {
+          userId: {
+            in: ["65a3eabcb60244adf37015fb", params.userId]
+          }
+        }
       },
     },
     include: {
@@ -67,7 +71,16 @@ export default async function MessengerPage({ params }: { params: { userId: stri
   if (!conversation) {
     conversation = await prisma.conversation.create({
       data: {
-        participantIds: ["65a3eabcb60244adf37015fb", params.userId]
+        participants: {
+          connect: [
+            {
+              userId: "65a3eabcb60244adf37015fb"
+            },
+            {
+              userId: params.userId
+            }
+          ]
+        }
       },
       include: {
         messages: {
