@@ -1,9 +1,9 @@
 import MessageBar from '@/components/general/MessageBar';
 import prisma from '@/db';
 import { Avatar } from '@mui/material';
-import { User } from '@prisma/client';
+import { Message, User } from '@prisma/client';
 
-const MessageListEntry = (props: { content: string, userId: number, isCurrentUser: boolean }) => {
+const MessageListEntry = (props: { content: string, userId: string, isCurrentUser: boolean }) => {
   return (
     <div className={`flex ${props.isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
       {props.isCurrentUser && <Avatar sx={{ height: 24, width: 24, marginRight: 1 }} />}
@@ -12,35 +12,26 @@ const MessageListEntry = (props: { content: string, userId: number, isCurrentUse
   )
 }
 
-async function MessageList(props: { activeUserId: number }) {
+async function MessageList(props: { activeUserId: Message['userId'] }) {
   const { activeUserId } = props;
   const conversation = await prisma.conversation.findFirst({
     where: {
-      users: {
-        every: {
-          OR: [
-            {
-              id: activeUserId
-            },
-            {
-              id: 1
-            }
-          ]
-        }
+      participantIds: {
+        hasEvery: [activeUserId, "65a3eabcb60244adf37015fb"]
       }
     },
     include: {
-      users: true,
+      participants: true,
       messages: {
         orderBy: {
-          createdAt: 'asc'
+          createdAt: 'desc'
         }
       }
     }
   });
   return (
     <div className='w-full flex flex-col-reverse p-5 gap-2 bg-zinc-100'>
-      {conversation?.messages.map((m) => <MessageListEntry content={m.content} userId={m.userId} isCurrentUser={m.userId === 1} />)}
+      {conversation?.messages.map((m) => <MessageListEntry content={m.content} userId={m.userId} isCurrentUser={m.userId === "65a3eabcb60244adf37015fb"} />)}
     </div>
   )
 }
@@ -59,7 +50,7 @@ async function UserList() {
   const users = await prisma.user.findMany({
     where: {
       NOT: {
-        id: 1
+        id: '65a3eabcb60244adf37015fb'
       }
     }
   });
@@ -75,10 +66,10 @@ export default async function MessengerPage() {
   return (
     <div className="flex flex-col relative h-full justify-between pt-5">
       <div className="flex flex-row h-full px-5 gap-5">
-        <MessageList userId1={1} userId2={4} />
+        <MessageList activeUserId={"65a3eaabb60244adf37015f9"} />
         <UserList />
       </div>
-      <MessageBar />
+      <MessageBar activeUserId="65a3eaabb60244adf37015f9" />
     </div>
   )
 }

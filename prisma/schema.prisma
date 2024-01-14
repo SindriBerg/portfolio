@@ -1,44 +1,34 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
-model User {
-  id             Int                 @id @default(autoincrement())
-  username       String              @unique
-  conversations  Conversation[]
-  messages       Message[]
-}
-
-model Conversation {
-  id               Int                @id @default(autoincrement())
-  createdAt        DateTime           @default(now())
-  users            User[]             
-  messages         Message[]
+  provider = "mongodb"
+  url      = "mongodb+srv://sindriberg:1234@messenger.p7aylug.mongodb.net/messages"
 }
 
 model Message {
-  id             Int          @id @default(autoincrement())
-  content        String
-  createdAt      DateTime     @default(now())
-  userId         Int          // ID of the user who sent the message
-  conversationId Int          // ID of the conversation this message belongs to
-  user           User         @relation(fields: [userId], references: [id])
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  content String
+  conversationId String @db.ObjectId
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
 
-// model UserConversation {
-//   userId         Int
-//   conversationId Int
-//   user           User                @relation(fields: [userId], references: [id])
-//   conversation   Conversation        @relation(fields: [conversationId], references: [id])
+model User {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  username String
+  messages Message[]
+  conversationIds String[] @db.ObjectId
+  conversations Conversation[] @relation(fields: [conversationIds], references: [id])
+}
 
-//   @@id([userId, conversationId])
-// }
+model Conversation {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  messages    Message[]
+  participantIds String[] @db.ObjectId
+  participants User[] @relation(fields: [participantIds], references: [id])
+}
+
