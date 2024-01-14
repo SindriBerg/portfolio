@@ -1,12 +1,12 @@
 "use client"
 import { sendMessage } from '@/app/messenger-api-service';
 import { useRef } from 'react';
-export default function MessageBar(props: { activeUserId: string }) {
+export default function MessageBar(props: { conversationId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleFormAction(formData: FormData) {
     if (!inputRef.current) return;
-    sendMessage(formData, props.activeUserId);
+    sendMessage(formData, props.conversationId);
     inputRef.current.value = '';
   }
   return (

@@ -27,8 +27,9 @@ model User {
 
 model Conversation {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  messages    Message[]
   participantIds String[] @db.ObjectId
   participants User[] @relation(fields: [participantIds], references: [id])
+  messageIds String[] @db.ObjectId
+  messages Message[]
 }
 
