@@ -1,18 +1,18 @@
 -- CreateTable
 CREATE TABLE "Message" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "userId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
+    "isFromUser" BOOLEAN NOT NULL,
     "conversationId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Message_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Message_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Message_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "Character" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "username" TEXT NOT NULL
+    "name" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -22,10 +22,10 @@ CREATE TABLE "Conversation" (
 
 -- CreateTable
 CREATE TABLE "UserConversation" (
-    "userId" TEXT NOT NULL,
+    "characterId" TEXT NOT NULL,
     "conversationId" TEXT NOT NULL,
 
-    PRIMARY KEY ("userId", "conversationId"),
-    CONSTRAINT "UserConversation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    PRIMARY KEY ("characterId", "conversationId"),
+    CONSTRAINT "UserConversation_characterId_fkey" FOREIGN KEY ("characterId") REFERENCES "Character" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "UserConversation_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

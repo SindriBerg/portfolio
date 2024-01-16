@@ -9,7 +9,7 @@ const useStoreSync = <T>(
   // Ref to store flag and avoid rerender.
   const unsynced = useRef(true);
   // Creating store hook with initial state from the server.
-  const useServerStore = useMemo(() => create<T>(() => state), []);
+  const useServerStore = useMemo(() => create<T>(() => state), [state]);
 
   if (unsynced.current) {
     // Setting state and changing flag.

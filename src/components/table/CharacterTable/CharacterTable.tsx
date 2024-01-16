@@ -282,7 +282,7 @@ export default function CharacterTable() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [debouncedSearchTerm, fetchMore, hasNextPage, page]);
 
   return (
     <Box
@@ -326,11 +326,33 @@ export default function CharacterTable() {
           overflowY: 'scroll',
         }}
       >
-        <TableBodyRenderer
+        {
+          table.getRowModel().rows.map((r, index) => (
+            <Box
+              key={r.id}
+              className="row-table-wrapper"
+            // data-group-number={r.original.orderGroupNumber}
+            >
+              <CharacterRow {...r} />
+              <AnimatePresence mode="wait">
+                {
+                  r.getIsExpanded()
+                  && (
+                    <EpisodeTable
+                      episodeUrls={r.original.episode.map((e) => e?.id).filter(isDefined)}
+                    />
+                  )
+                }
+              </AnimatePresence>
+            </Box>
+          ))
+        }
+        {/* <TableBodyRenderer
           table={table}
           status={networkStatus}
           RowComponent={(row) => (
             <AnimatedExpandableRow
+              key={row.id}
               row={row}
               animatedChild={() => (
                 <EpisodeTable
@@ -344,7 +366,7 @@ export default function CharacterTable() {
             />
           )}
           ref={tableRef}
-        />
+        /> */}
       </Box>
     </Box>
   );

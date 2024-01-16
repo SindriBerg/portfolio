@@ -8,6 +8,19 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: {
+          main: 'rgba(151, 206, 76, 1)',
+          '300': 'rgba(151, 206, 76, 0.3)',
+        },
+        background: {
+          default: '#e4a788',
+        },
+        secondary: {
+          main: 'rgba(171, 213, 236, 1)',
+          '300': 'rgba(171, 213, 236, 0.3)',
+        },
+      }
     },
   },
   plugins: [],

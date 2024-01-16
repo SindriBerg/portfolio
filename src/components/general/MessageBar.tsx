@@ -1,13 +1,18 @@
 "use client"
 import { sendMessage } from '@/app/messenger-api-service';
 import { useRef } from 'react';
+
 export default function MessageBar(props: { conversationId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function handleFormAction(formData: FormData) {
+  async function handleFormAction(formData: FormData) {
     if (!inputRef.current) return;
-    sendMessage(formData, props.conversationId);
+    const inputvalue = formData.get('message-input')?.valueOf();
+    if (typeof inputvalue !== 'string') throw new Error('Invalid input');
+    if (inputvalue.length === 0) return;
     inputRef.current.value = '';
+    await sendMessage(inputvalue, props.conversationId);
+    // await getReplyFromOpenAi(inputvalue, props.conversationId);
   }
 
   return (

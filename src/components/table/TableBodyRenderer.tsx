@@ -1,8 +1,9 @@
 import { NetworkStatus } from '@apollo/client';
-import { Box } from '@mui/material';
+import { Box, Skeleton } from '@mui/material';
 import { Table, Row } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
 import { ReactElement, ForwardedRef, forwardRef } from 'react';
+import Image from 'next/image';
 
 type TableBodyRendererProps<T> = {
   table: Table<T>;
@@ -11,43 +12,16 @@ type TableBodyRendererProps<T> = {
 };
 
 // Generic wrapper to handle loading states on the bodies of tables more easily.
-function TableBodyRendererInner<T>(
+export function TableBodyRendererInner<T>(
   props: TableBodyRendererProps<T>,
   ref: ForwardedRef<HTMLDivElement>
 ) {
   const { status, table, RowComponent } = props;
   if (status === NetworkStatus.loading) {
     return (
-      <Box
-        ref={ref}
-        display="flex"
-        flexDirection="column"
-        width={1}
-        alignItems="center"
-        height={750}
-        justifyContent="center"
-      >
-        <motion.img
-          style={{
-            width: 250,
-            height: 250,
-          }}
-          animate={{
-            height: [225, 250, 225],
-            width: [250, 225, 250],
-          }}
-          transition={{ repeat: Infinity }}
-          src={'/portal.gif'}
-        />
-        <div
-          style={{
-            fontSize: 50,
-          }}
-          className="ram-font"
-        >
-          Loading
-        </div>
-      </Box>
+      Array.from({ length: 10 }).map((_, i) => (
+        <Skeleton key={i} height={24} width={1} />
+      ))
     );
   }
   if (status === NetworkStatus.error) {
@@ -63,10 +37,10 @@ function TableBodyRendererInner<T>(
         <div style={{ fontSize: 30, marginBottom: 10 }}>
           I think Morty messed with the portal gun again....
         </div>
-        <img src={'/angryrick.webp'} height={250} />
+        <Image src={'/angryrick.webp'} alt="Error image" height={250} />
       </Box>
     );
-  } else return table.getRowModel().rows.map(RowComponent);
+  } else return table.getRowModel().rows.map((r) => <RowComponent key={r.id} {...r} />)
 }
 
 export const TableBodyRenderer = forwardRef(

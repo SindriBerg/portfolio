@@ -13,7 +13,7 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { useMemo, useCallback, ReactElement } from 'react';
+import { useMemo, useCallback, ReactElement, useEffect } from 'react';
 import { episodeColumns } from './tableHelper';
 import { useQuery } from '@apollo/client';
 import { TableBodyRenderer } from './TableBodyRenderer';
@@ -25,7 +25,7 @@ interface SubTableProps {
 
 export function EpisodeTable(props: SubTableProps) {
   const { episodeUrls } = props;
-  const { data, loading, networkStatus } =
+  const { data, networkStatus } =
     useQuery<GetEpisodesByIdQuery>(GetEpisodesByIdDocument, {
       variables: {
         ids: episodeUrls,
@@ -48,7 +48,7 @@ export function EpisodeTable(props: SubTableProps) {
     (row: Row<Episode>): ReactElement => (
       <Grid xs={12} container key={row.id}>
         {row.getVisibleCells().map((cell) => (
-          <Grid xs>
+          <Grid key={cell.id} xs>
             {flexRender(
               cell.column.columnDef.cell,
               cell.getContext()
@@ -63,7 +63,6 @@ export function EpisodeTable(props: SubTableProps) {
   return (
     <motion.div
       className="episode-table"
-      key={uniqueId('episode-table')}
       initial={{
         height: 0,
         opacity: 0,
