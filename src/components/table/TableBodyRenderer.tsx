@@ -8,6 +8,7 @@ import Image from 'next/image';
 type TableBodyRendererProps<T> = {
   table: Table<T>;
   status: NetworkStatus;
+  skeletonRowCount?: number;
   RowComponent: (row: Row<T>) => ReactElement;
 };
 
@@ -19,8 +20,8 @@ export function TableBodyRendererInner<T>(
   const { status, table, RowComponent } = props;
   if (status === NetworkStatus.loading) {
     return (
-      Array.from({ length: 10 }).map((_, i) => (
-        <Skeleton key={i} height={24} width={1} />
+      Array.from({ length: props.skeletonRowCount ?? 0 }).map((_, i) => (
+        <Skeleton key={i} height={24} width='100%' />
       ))
     );
   }

@@ -39,7 +39,9 @@ export default function RootLayout({
       <body className={oswald.className + ' h-[100vh]'}>
         <ApolloWrapper>
           <SideNavigation />
-          {children}
+          <main>
+            {children}
+          </main>
         </ApolloWrapper>
       </body>
     </html >

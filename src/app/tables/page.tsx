@@ -23,6 +23,20 @@ export const myTheme = createTheme({
         shrink: false,
       },
     },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          ":hover": {
+            backgroundColor: 'rgba(151, 206, 76, 1)'
+          },
+          "&.Mui-disabled": {
+            "backgroundColor": '#78909c',
+            cursor: 'not-allowed',
+            pointerEvents: 'unseb',
+          }
+        },
+      }
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'standard',
@@ -33,9 +47,9 @@ export const myTheme = createTheme({
             fontSize: '12px',
           },
           '& .MuiInput-root:hover:not(.Mui-disabled, .Mui-error):before':
-            {
-              borderBottomColor: 'primary.main',
-            },
+          {
+            borderBottomColor: 'primary.main',
+          },
         },
       },
     },

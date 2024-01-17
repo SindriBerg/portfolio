@@ -1,12 +1,17 @@
 import {
   Character,
   GetCharactersDocument,
+  GetCharactersQuery,
+  GetCharactersQueryVariables,
+  QueryCharactersArgs,
 } from '@/gql/__generated__/rick-and-morty-graphql';
 import { isDefined, useDebounce } from '@/utility/helpers';
 import { useSuspenseQuery } from '@apollo/experimental-nextjs-app-support/ssr';
 import {
   Autocomplete,
   Box,
+  Button,
+  IconButton,
   Skeleton,
   TextField,
   Typography,
@@ -24,7 +29,9 @@ import {
 } from '@tanstack/react-table';
 import { AnimatePresence } from 'framer-motion';
 import React, {
+  Dispatch,
   ReactElement,
+  SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -38,6 +45,8 @@ import { CharacterRow } from './CharacterRow';
 import { useSearchQuery } from '@/components/providers/SearchQueryProvider';
 import { NetworkStatus } from '@apollo/client';
 import { CiSearch } from 'react-icons/ci';
+import { TableFilters } from '../TableFilters';
+import { GrFormPrevious, GrFormNext, GrChapterPrevious, GrChapterNext } from "react-icons/gr";
 
 type AnimatedExpandableRowProps<T> = {
   animatedChild: () => ReactElement;
@@ -112,83 +121,67 @@ const SearchbarSection = (props: {
   );
 };
 
-const TableFilters = () => {
+const PaginationButtons = (props: {
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  handlePageChange: Dispatch<SetStateAction<number>>;
+  amountOfPages: number;
+  currentPage: number;
+}) => {
+  const { hasNextPage, hasPrevPage, handlePageChange, currentPage } = props;
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // If the input value is not a number, return
+    const value = e.target.value;
+    if (isNaN(Number(value))) return;
+    // if (e.target.value !== '' && isNaN(Number(e.target.value))) return;
+    // if (e.target.value === '') return handlePageChange(1)
+    if (Number(e.target.value) > props.amountOfPages) return handlePageChange(props.amountOfPages)
+    // if (Number(e.target.value) < 1) return handlePageChange(1)
+    handlePageChange(Number(e.target.value));
+  }, [handlePageChange, props.amountOfPages]);
+
   return (
-    <Grid
-      container
-      padding={2}
-      columns={5}
-      className="table-filters"
+    <Box
       display="flex"
-      flexDirection="row"
-      paddingBlock={1}
+      justifyContent="center"
+      alignItems="center"
+      padding={1}
+      sx={{
+        // position: 'absolute',
+        backgroundColor: 'secondary.main',
+        // bottom: 0,
+        // right: 'calc(50% - 50px)',
+        marginTop: 'auto',
+        zIndex: 30,
+        gap: 1
+      }}
     >
-      <Grid xs={1}>
-        <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              InputLabelProps={{
-                shrink: false,
-              }}
-              label="Status"
-              variant="standard"
-            />
-          )}
-        />
-      </Grid>
-      <Grid xs={1} paddingLeft={3}>
-        <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Status"
-              variant="standard"
-            />
-          )}
-        />
-      </Grid>
-      <Grid xs={1} paddingLeft={3}>
-        <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Status"
-              variant="standard"
-            />
-          )}
-        />
-      </Grid>
-      <Grid xs={1} paddingLeft={3}>
-        <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Status"
-              variant="standard"
-            />
-          )}
-        />
-      </Grid>
-      <Grid xs={1} paddingLeft={3}>
-        <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Status"
-              variant="standard"
-            />
-          )}
-        />
-      </Grid>
-    </Grid>
+      <IconButton disabled={!hasPrevPage} onClick={() => handlePageChange(1)}>
+        <GrChapterPrevious color="white" />
+      </IconButton>
+      <IconButton disabled={!hasPrevPage} onClick={() => handlePageChange((prev) => --prev)}>
+        <GrFormPrevious color="white" />
+      </IconButton>
+      <TextField
+        sx={{
+          width: 50,
+          '& .MuiInput-input': {
+            textAlign: 'right'
+          }
+        }} value={currentPage} onChange={handleInputChange}
+        InputProps={{ endAdornment: <Typography>/{props.amountOfPages}</Typography> }}
+      />
+      <IconButton disabled={!hasNextPage} onClick={() => handlePageChange((prev) => ++prev)}>
+        <GrFormNext color="white" />
+      </IconButton>
+      <IconButton disabled={!hasNextPage} onClick={() => handlePageChange(props.amountOfPages)}>
+        <GrChapterNext color="white" />
+      </IconButton>
+    </Box>
   );
-};
+}
+
 
 export default function CharacterTable() {
   const [expanded, setExpanded] = useState<ExpandedState>({});
@@ -199,12 +192,17 @@ export default function CharacterTable() {
 
   const debouncedSearchTerm = useDebounce(searchQuery, 500);
 
-  const { data, fetchMore, networkStatus } = useSuspenseQuery(
+  const { data, networkStatus } = useSuspenseQuery(
     GetCharactersDocument,
     {
       variables: {
         page,
-        name: debouncedSearchTerm,
+        filter: {
+          name: debouncedSearchTerm,
+        }
+        // filter: {
+        //   status: 
+        // }
       },
     }
   );
@@ -215,14 +213,12 @@ export default function CharacterTable() {
 
   const hasNextPage = data?.characters?.info?.next !== null;
   const hasPrevPage = data?.characters?.info?.prev !== null;
+  const amountOfPages = data?.characters?.info?.pages ?? 1;
 
-  const resetExpanded = useCallback(() => {
-    setExpanded({});
-  }, []);
 
   useEffect(() => {
-    resetExpanded();
-  }, [page, searchQuery, sorting, resetExpanded]);
+    setExpanded({});
+  }, [page, searchQuery, sorting]);
 
   const table = useReactTable<Character>({
     data: tableData as Character[],
@@ -241,48 +237,55 @@ export default function CharacterTable() {
   });
 
   useEffect(() => {
-    if (!tableRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        console.log(entries);
-        if (entries[0].isIntersecting) {
-          console.log('Element is 50% or more visible');
-          // Do something when the element hits the 0.5 threshold
-        } else {
-          console.log('Element is less than 50% visible');
-          // Do something else when the element is less than 0.5 visibility
-        }
-        if (entries[0].isIntersecting && hasNextPage) {
-          console.log('fetching more');
-          fetchMore({
-            variables: {
-              page: page + 1,
-              name: debouncedSearchTerm,
-            },
-            updateQuery: (prev, { fetchMoreResult }) => {
-              const prevResults = prev.characters?.results ?? [];
-              const newResults =
-                fetchMoreResult.characters?.results ?? [];
-              return {
-                characters: {
-                  __typename: 'Characters',
-                  info: fetchMoreResult.characters?.info,
-                  results: [...prevResults, ...newResults],
-                },
-              };
-            },
-          });
-        }
-      },
-      {
-        threshold: 0.9,
-      }
-    );
-    observer.observe(tableRef.current);
-    return () => {
-      observer.disconnect();
-    };
-  }, [debouncedSearchTerm, fetchMore, hasNextPage, page]);
+    setPage(1);
+  }, [setPage, debouncedSearchTerm])
+
+  // This is in case I decide to implement infinite scrolling
+  // useEffect(() => {
+  //   if (!tableRef.current) return;
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       console.log(entries);
+  //       if (entries[0].isIntersecting) {
+  //         console.log('Element is 50% or more visible');
+  //         // Do something when the element hits the 0.5 threshold
+  //       } else {
+  //         console.log('Element is less than 50% visible');
+  //         // Do something else when the element is less than 0.5 visibility
+  //       }
+  //       if (entries[0].isIntersecting && hasNextPage) {
+  //         console.log('fetching more');
+  //         fetchMore({
+  //           variables: {
+  //             page: page + 1,
+  //             filter: {
+  //               name: debouncedSearchTerm,
+  //             }
+  //           },
+  //           updateQuery: (prev, { fetchMoreResult }) => {
+  //             const prevResults = prev.characters?.results ?? [];
+  //             const newResults =
+  //               fetchMoreResult.characters?.results ?? [];
+  //             return {
+  //               characters: {
+  //                 __typename: 'Characters',
+  //                 info: fetchMoreResult.characters?.info,
+  //                 results: [...prevResults, ...newResults],
+  //               },
+  //             };
+  //           },
+  //         });
+  //       }
+  //     },
+  //     {
+  //       threshold: 0.9,
+  //     }
+  //   );
+  //   observer.observe(tableRef.current);
+  //   return () => {
+  //     observer.disconnect();
+  //   };
+  // }, [debouncedSearchTerm, fetchMore, hasNextPage, page]);
 
   return (
     <Box
@@ -291,39 +294,39 @@ export default function CharacterTable() {
       display="flex"
       height="100vh"
       overflow="hidden"
+      position="relative"
     >
       <SearchbarSection
         queryResults={tableData.length}
         isLoading={networkStatus === NetworkStatus.loading}
       />
       <TableFilters />
-      <Grid container xs={12}>
-        <Grid
-          xs={12}
-          id="table-header"
-          display="flex"
-          minHeight={32}
-          borderTop="1px solid black"
-          borderBottom="1px solid black"
-          alignItems="center"
-        >
-          {table
-            .getHeaderGroups()
-            .map((headerGroup) =>
-              headerGroup.headers.map((header) =>
-                flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )
+
+      <Grid
+        xs={12}
+        id="table-header"
+        display="flex"
+        minHeight={32}
+        borderTop="1px solid black"
+        borderBottom="1px solid black"
+        alignItems="center"
+      >
+        {table
+          .getHeaderGroups()
+          .map((headerGroup) =>
+            headerGroup.headers.map((header) =>
+              flexRender(
+                header.column.columnDef.header,
+                header.getContext()
               )
-            )}
-        </Grid>
+            )
+          )}
       </Grid>
       <Box
         id="table-body"
         ref={tableRef}
         sx={{
-          overflowY: 'scroll',
+          overflowY: 'auto',
         }}
       >
         {
@@ -368,6 +371,12 @@ export default function CharacterTable() {
           ref={tableRef}
         /> */}
       </Box>
+      <PaginationButtons
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+        amountOfPages={amountOfPages}
+        currentPage={page}
+        handlePageChange={setPage} />
     </Box>
   );
 }

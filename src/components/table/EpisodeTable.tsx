@@ -4,7 +4,7 @@ import {
   Episode,
 } from '@/gql/__generated__/rick-and-morty-graphql';
 import { isDefined } from '@/utility/helpers';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import {
   useReactTable,
@@ -80,12 +80,17 @@ export function EpisodeTable(props: SubTableProps) {
         paddingInline: 40,
       }}
     >
+      <Typography variant="h5" paddingTop={2}>
+        Episodes
+      </Typography>
       <Grid
         xs={12}
         id="table-header"
         display="flex"
         minHeight={32}
         alignItems="center"
+        borderBottom="1px solid black"
+        marginBottom={2}
       >
         {subTable.getHeaderGroups().map((hg) =>
           hg.headers.map((h) => (
@@ -95,11 +100,14 @@ export function EpisodeTable(props: SubTableProps) {
           ))
         )}
       </Grid>
-      <TableBodyRenderer
-        status={networkStatus}
-        table={subTable}
-        RowComponent={RowComponent}
-      />
+      <Box paddingBottom={2}>
+        <TableBodyRenderer
+          status={networkStatus}
+          table={subTable}
+          skeletonRowCount={props.episodeUrls.length}
+          RowComponent={RowComponent}
+        />
+      </Box>
     </motion.div>
   );
 }
