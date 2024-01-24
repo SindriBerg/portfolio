@@ -24,7 +24,12 @@ const useTableFilters = () => {
 };
 
 const TableFiltersProvider = (props: PropsWithChildren) => {
-  const [filters, setfilters] = useState<FilterCharacter>();
+  const [filters, setfilters] = useState<FilterCharacter>({
+    gender: null,
+    species: null,
+    status: null,
+    type: null,
+  });
 
   const context: TableFiltersContextType = useMemo(() => {
     return {
@@ -41,6 +46,7 @@ const TableFiltersProvider = (props: PropsWithChildren) => {
 };
 
 const TableFilters = () => {
+  const { filters, setfilters } = useTableFilters();
   return (
     <Grid
       container
@@ -51,9 +57,16 @@ const TableFilters = () => {
       flexDirection="row"
       paddingBlock={1}
     >
-      <Grid xs={1}>
+      <Grid xs paddingLeft={3}>
         <Autocomplete
           options={['Alive', 'Dead', 'Unknown']}
+          value={filters.status}
+          onChange={(_, newValue) => {
+            setfilters((prev) => ({
+              ...prev,
+              status: newValue,
+            }));
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -66,49 +79,67 @@ const TableFilters = () => {
           )}
         />
       </Grid>
-      <Grid xs={1} paddingLeft={3}>
+      <Grid xs paddingLeft={3}>
         <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
+          options={['Human', 'Alien', 'Poopybutthole']}
+          value={filters.species}
+          onChange={(_, newValue) => {
+            setfilters((prev) => ({
+              ...prev,
+              species: newValue,
+            }));
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Status"
+              InputLabelProps={{
+                shrink: false,
+              }}
+              label="Species"
               variant="standard"
             />
           )}
         />
       </Grid>
-      <Grid xs={1} paddingLeft={3}>
+      <Grid xs paddingLeft={3}>
         <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
+          options={['Male', 'Female', 'Unknown', 'Genderless']}
+          value={filters.gender}
+          onChange={(_, newValue) => {
+            setfilters((prev) => ({
+              ...prev,
+              gender: newValue,
+            }));
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Status"
+              InputLabelProps={{
+                shrink: false,
+              }}
+              label="Gender"
               variant="standard"
             />
           )}
         />
       </Grid>
-      <Grid xs={1} paddingLeft={3}>
+      <Grid xs paddingLeft={3}>
         <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
+          options={['Male', 'Female', 'Unknown', 'Genderless']}
+          value={filters.type}
+          onChange={(_, newValue) => {
+            setfilters((prev) => ({
+              ...prev,
+              type: newValue,
+            }));
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Status"
-              variant="standard"
-            />
-          )}
-        />
-      </Grid>
-      <Grid xs={1} paddingLeft={3}>
-        <Autocomplete
-          options={['Alive', 'Dead', 'Unknown']}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Status"
+              InputLabelProps={{
+                shrink: false,
+              }}
+              label="Type"
               variant="standard"
             />
           )}

@@ -2,8 +2,9 @@
 import { createTheme, ThemeProvider } from '@mui/material';
 import CharacterTable from '@/components/table/CharacterTable/CharacterTable';
 import { SearchQueryProvider } from '@/components/providers/SearchQueryProvider';
+import { TableFilters, TableFiltersProvider } from '@/components/table/TableFilters';
 
-export const myTheme = createTheme({
+const myTheme = createTheme({
   palette: {
     primary: {
       main: 'rgba(151, 206, 76, 1)',
@@ -60,7 +61,9 @@ export default function Tables() {
   return (
     <ThemeProvider theme={myTheme}>
       <SearchQueryProvider>
-        <CharacterTable />
+        <TableFiltersProvider>
+          <CharacterTable />
+        </TableFiltersProvider>
       </SearchQueryProvider>
     </ThemeProvider>
   );

@@ -13,13 +13,16 @@ export const metadata: Metadata = {
 
 const SideNavigation = () => {
   return (
-    <nav className="fixed flex justify-center h-full left-0 top-0 border-r-2 w-[75px]">
-      <ul className="flex flex-col">
+    <nav className="flex justify-center h-full left-0 top-0 border-r-2 w-fit p-2">
+      <ul className="flex flex-col text-nowrap">
         <li>
           <Link href="/">Home</Link>
         </li>
         <li>
-          <Link href="/tables">Tables</Link>
+          <Link href="/rick-and-morty">Rick and Morty</Link>
+        </li>
+        <li>
+          <Link href="/messenger/rick-sanchez">Messenger</Link>
         </li>
         <li>
           <Link href="/messenger">Messenger</Link>
@@ -36,10 +39,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={oswald.className + ' h-[100vh]'}>
+      <body className={oswald.className + ' h-[100vh] flex flex-row'}>
         <ApolloWrapper>
           <SideNavigation />
-          <main>
+          <main className="w-full">
             {children}
           </main>
         </ApolloWrapper>

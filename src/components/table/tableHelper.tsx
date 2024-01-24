@@ -15,6 +15,7 @@ import { extractIdFromUrl, isDefined } from '@/utility/helpers';
 import { useQuery } from '@tanstack/react-query';
 import { getCharacterRange } from '@/api/rick-and-morty-api-service';
 import { ReactNode } from 'react';
+import { FaChevronUp } from "react-icons/fa";
 
 function NameCell(props: { name: string; img?: string }) {
   const { name, img } = props;
@@ -166,6 +167,14 @@ export const characterColumns = [
       </Grid>
     ),
   }),
+  characterColHelper.accessor('type', {
+    id: 'type',
+    header: () => (
+      <Grid xs>
+        <StyledTypography>Type</StyledTypography>
+      </Grid>
+    ),
+  }),
   characterColHelper.accessor('gender', {
     id: 'gender',
     cell: (info) => info.getValue(),
@@ -191,6 +200,20 @@ export const characterColumns = [
     ),
     id: 'episodes',
   }),
+  characterColHelper.display({
+    id: 'expander',
+    header: (c) =>
+      <Grid onClick={() => c.table.toggleAllRowsExpanded()} sx={{ cursor: 'pointer' }} xs>
+        <FaChevronUp
+          size={16}
+          className="fill-primary-main"
+          style={{
+            fill: 'primary.main',
+            transform: !c.table.getIsAllRowsExpanded() ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'all 0.3s ease-in-out',
+          }} />
+      </Grid>,
+  })
 ];
 
 const episodeColumnHelper = createColumnHelper<Episode>();

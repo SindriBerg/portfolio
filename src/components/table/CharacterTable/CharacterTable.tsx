@@ -45,8 +45,9 @@ import { CharacterRow } from './CharacterRow';
 import { useSearchQuery } from '@/components/providers/SearchQueryProvider';
 import { NetworkStatus } from '@apollo/client';
 import { CiSearch } from 'react-icons/ci';
-import { TableFilters } from '../TableFilters';
+import { TableFilters, useTableFilters } from '../TableFilters';
 import { GrFormPrevious, GrFormNext, GrChapterPrevious, GrChapterNext } from "react-icons/gr";
+import { IconContext } from 'react-icons';
 
 type AnimatedExpandableRowProps<T> = {
   animatedChild: () => ReactElement;
@@ -148,36 +149,37 @@ const PaginationButtons = (props: {
       alignItems="center"
       padding={1}
       sx={{
-        // position: 'absolute',
         backgroundColor: 'secondary.main',
-        // bottom: 0,
-        // right: 'calc(50% - 50px)',
         marginTop: 'auto',
         zIndex: 30,
         gap: 1
       }}
     >
-      <IconButton disabled={!hasPrevPage} onClick={() => handlePageChange(1)}>
-        <GrChapterPrevious color="white" />
-      </IconButton>
-      <IconButton disabled={!hasPrevPage} onClick={() => handlePageChange((prev) => --prev)}>
-        <GrFormPrevious color="white" />
-      </IconButton>
-      <TextField
-        sx={{
-          width: 50,
-          '& .MuiInput-input': {
-            textAlign: 'right'
-          }
-        }} value={currentPage} onChange={handleInputChange}
-        InputProps={{ endAdornment: <Typography>/{props.amountOfPages}</Typography> }}
-      />
-      <IconButton disabled={!hasNextPage} onClick={() => handlePageChange((prev) => ++prev)}>
-        <GrFormNext color="white" />
-      </IconButton>
-      <IconButton disabled={!hasNextPage} onClick={() => handlePageChange(props.amountOfPages)}>
-        <GrChapterNext color="white" />
-      </IconButton>
+      <IconContext.Provider value={{
+        size: '16px',
+      }}>
+        <IconButton disabled={!hasPrevPage} onClick={() => handlePageChange(1)}>
+          <GrChapterPrevious color="white" />
+        </IconButton>
+        <IconButton disabled={!hasPrevPage} onClick={() => handlePageChange((prev) => --prev)}>
+          <GrFormPrevious color="white" />
+        </IconButton>
+        <TextField
+          sx={{
+            width: 50,
+            '& .MuiInput-input': {
+              textAlign: 'right'
+            }
+          }} value={currentPage} onChange={handleInputChange}
+          InputProps={{ endAdornment: <Typography>/{props.amountOfPages}</Typography> }}
+        />
+        <IconButton disabled={!hasNextPage} onClick={() => handlePageChange((prev) => ++prev)}>
+          <GrFormNext color="white" />
+        </IconButton>
+        <IconButton disabled={!hasNextPage} onClick={() => handlePageChange(props.amountOfPages)}>
+          <GrChapterNext color="white" />
+        </IconButton>
+      </IconContext.Provider>
     </Box>
   );
 }
@@ -191,6 +193,7 @@ export default function CharacterTable() {
   const { searchQuery } = useSearchQuery();
 
   const debouncedSearchTerm = useDebounce(searchQuery, 500);
+  const { filters } = useTableFilters();
 
   const { data, networkStatus } = useSuspenseQuery(
     GetCharactersDocument,
@@ -199,10 +202,8 @@ export default function CharacterTable() {
         page,
         filter: {
           name: debouncedSearchTerm,
+          ...filters
         }
-        // filter: {
-        //   status: 
-        // }
       },
     }
   );
@@ -301,7 +302,6 @@ export default function CharacterTable() {
         isLoading={networkStatus === NetworkStatus.loading}
       />
       <TableFilters />
-
       <Grid
         xs={12}
         id="table-header"
@@ -327,6 +327,10 @@ export default function CharacterTable() {
         ref={tableRef}
         sx={{
           overflowY: 'auto',
+          'scrollbarWidth': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          },
         }}
       >
         {

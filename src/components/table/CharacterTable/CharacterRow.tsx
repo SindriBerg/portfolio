@@ -1,8 +1,9 @@
 import { Character } from '@/gql/__generated__/rick-and-morty-graphql';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import { Row } from '@tanstack/react-table';
 import Image from 'next/image';
+import { FaChevronUp } from "react-icons/fa";
 
 export const CharacterRow = (row: Row<Character>) => (
   <Box
@@ -47,7 +48,6 @@ export const CharacterRow = (row: Row<Character>) => (
             height={50}
             style={{
               objectFit: 'cover',
-              // width: 'auto',
               transition: 'all 0.3s ease-in-out',
             }}
           />
@@ -71,9 +71,23 @@ export const CharacterRow = (row: Row<Character>) => (
         {row.original.status}
       </Grid>
       <Grid xs>{row.original.species}</Grid>
+      <Grid xs>{row.original.type}</Grid>
       <Grid xs>{row.original.gender}</Grid>
-      <Grid xs>{row.original.origin?.dimension}</Grid>
+      <Grid xs sx={{ textTransform: 'capitalize' }}>{row.original.origin?.dimension}</Grid>
       <Grid xs>{row.original.episode.length}</Grid>
+      <Grid xs onClick={(e) => {
+        e.stopPropagation();
+        return row.toggleExpanded();
+      }}>
+        <FaChevronUp
+          size={16}
+          className="fill-primary-main"
+          style={{
+            fill: 'primary.main',
+            transform: !row.getIsExpanded() ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'all 0.3s ease-in-out',
+          }} />
+      </Grid>
     </Grid>
   </Box>
 );
