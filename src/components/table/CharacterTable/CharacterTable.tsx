@@ -207,6 +207,7 @@ export default function CharacterTable() {
       },
     }
   );
+
   const tableData = useMemo(
     () => data?.characters?.results ?? [],
     [data?.characters?.results]
@@ -219,7 +220,11 @@ export default function CharacterTable() {
 
   useEffect(() => {
     setExpanded({});
-  }, [page, searchQuery, sorting]);
+  }, [page, searchQuery, sorting, filters]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters])
 
   const table = useReactTable<Character>({
     data: tableData as Character[],
@@ -297,11 +302,13 @@ export default function CharacterTable() {
       overflow="hidden"
       position="relative"
     >
-      <SearchbarSection
-        queryResults={tableData.length}
-        isLoading={networkStatus === NetworkStatus.loading}
-      />
-      <TableFilters />
+      <Box id="table-top-section" display="flex" flexDirection="column">
+        <SearchbarSection
+          queryResults={tableData.length}
+          isLoading={networkStatus === NetworkStatus.loading}
+        />
+        <TableFilters />
+      </Box>
       <Grid
         xs={12}
         id="table-header"
