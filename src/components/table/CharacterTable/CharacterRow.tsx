@@ -1,5 +1,5 @@
 import { Character } from '@/gql/__generated__/rick-and-morty-graphql';
-import { Box, Button } from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import { Row } from '@tanstack/react-table';
 import Image from 'next/image';
@@ -8,12 +8,12 @@ import { FaChevronUp } from "react-icons/fa";
 
 export const CharacterRow = (row: Row<Character>) => {
   const rowRef = useRef<HTMLDivElement>(null);
+  const { palette } = useTheme();
 
   useLayoutEffect(() => {
     // Get a reference to the table body element
     const tableRef = document.getElementById('table-body');
     const filterSection = document.getElementById('table-top-section');
-    if (!row.getIsExpanded()) return;
     // If the table body element does not exist, return early
     if (!tableRef) return;
     if (!filterSection) return;
@@ -42,95 +42,81 @@ export const CharacterRow = (row: Row<Character>) => {
     return (): void => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [row]);
+  }, []);
 
   return (
-    <Box
+    <Grid
+      ref={rowRef}
       sx={{
+        minHeight: 64,
+        width: '100%',
+        alignItems: 'center',
+        margin: 0,
         cursor: 'pointer',
-        backgroundColor: '#FFFFFF',
-        transition: 'all 0.3s ease-in-out',
-        ['& .scroll-shadow']: {
-          boxShadow: `0px 4px 16px rgba(0, 0, 0, 0.3)`,
-          transition: 'box-shadow 0.3s ease-in-out',
+        ['&:hover']: {
+          backgroundColor: 'grey.300',
+          transition: 'all 0.2s ease-in-out',
         },
+        backgroundColor: palette.background.paper,
+        transition: 'box-shadow 0.3s ease-in-out',
+        // Conditionally set position sticky to fix header to top of table
+        // when getIsExpanded is true
+        position: row.getIsExpanded() ? 'sticky' : 'static',
+        boxShadow: !row.getIsExpanded() ? 'none !important' : '',
+        top: row.getIsExpanded() ? 0 : 'auto',
+        zIndex: row.getIsExpanded() ? 1 : 'auto',
       }}
-      position="sticky"
-      top={0}
+      columns={12}
+      container
+      onClick={() => row.toggleExpanded()}
     >
-      <Grid
-        columns={12}
-        textAlign="left"
-        alignItems="center"
-        ref={rowRef}
-        sx={{
-          cursor: 'pointer',
-          '&:hover': {
-            backgroundColor: 'primary.300',
-          },
-          backgroundColor: row.getIsExpanded()
-            ? 'primary.300'
-            : 'white',
-          transition: 'all 0.3s ease-in-out',
-        }}
-        position="sticky"
-        top={0}
-        zIndex={100}
-        marginBottom={1}
-        container
-        onClick={(e): void => {
-          e.preventDefault();
-          return void row.toggleExpanded();
-        }}
-      >
-        <Grid xs display="flex" flexDirection="row" alignItems="center">
-          {row.original.image ? (
-            <Image
-              alt={`Image of ${row.original.name}`}
-              src={row.original.image}
-              width={row.getIsExpanded() ? 128 : 64}
-              height={50}
-              style={{
-                objectFit: 'cover',
-                transition: 'all 0.3s ease-in-out',
-              }} />
-          ) : (
-            <Box sx={{ width: 50, height: 50, bgcolor: 'grey.300' }} />
-          )}
-        </Grid>
-        <Grid xs>{row.original.name}</Grid>
-        <Grid
-          sx={{
-            color: row.original.status === 'Alive'
-              ? 'primary.main'
-              : row.original.status === 'unknown'
-                ? 'grey'
-                : 'error.main',
-            textTransform: 'capitalize',
-          }}
-          xs
-        >
-          {row.original.status}
-        </Grid>
-        <Grid xs>{row.original.species}</Grid>
-        <Grid xs>{row.original.type}</Grid>
-        <Grid xs>{row.original.gender}</Grid>
-        <Grid xs sx={{ textTransform: 'capitalize' }}>{row.original.origin?.dimension}</Grid>
-        <Grid xs>{row.original.episode.length}</Grid>
-        <Grid xs onClick={(e) => {
-          e.stopPropagation();
-          return row.toggleExpanded();
-        }}>
-          <FaChevronUp
-            size={16}
-            className="fill-primary-main"
+      <Grid xs display="flex" flexDirection="row" alignItems="center">
+        {row.original.image ? (
+          <Image
+            alt={`Image of ${row.original.name}`}
+            src={row.original.image}
+            width={row.getIsExpanded() ? 128 : 64}
+            height={50}
             style={{
-              fill: 'primary.main',
-              transform: !row.getIsExpanded() ? 'rotate(180deg)' : 'rotate(0deg)',
+              objectFit: 'cover',
               transition: 'all 0.3s ease-in-out',
             }} />
-        </Grid>
+        ) : (
+          <Box sx={{ width: 50, height: 50, bgcolor: 'grey.300' }} />
+        )}
       </Grid>
-    </Box>
+      <Grid xs>{row.original.name}</Grid>
+      <Grid
+        sx={{
+          color: row.original.status === 'Alive'
+            ? 'primary.main'
+            : row.original.status === 'unknown'
+              ? 'grey'
+              : 'error.main',
+          textTransform: 'capitalize',
+        }}
+        xs
+      >
+        {row.original.status}
+      </Grid>
+      <Grid xs>{row.original.species}</Grid>
+      <Grid xs>{row.original.type}</Grid>
+      <Grid xs>{row.original.gender}</Grid>
+      <Grid xs sx={{ textTransform: 'capitalize' }}>{row.original.origin?.dimension}</Grid>
+      <Grid xs>{row.original.episode.length}</Grid>
+      <Grid xs onClick={(e) => {
+        e.stopPropagation();
+        return row.toggleExpanded();
+      }}>
+        <FaChevronUp
+          size={16}
+          className="fill-primary-main"
+          style={{
+            fill: 'primary.main',
+            transform: !row.getIsExpanded() ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'all 0.3s ease-in-out',
+          }} />
+      </Grid>
+    </Grid>
   );
 };

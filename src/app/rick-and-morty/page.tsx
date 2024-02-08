@@ -9,9 +9,13 @@ const myTheme = createTheme({
     primary: {
       main: 'rgba(151, 206, 76, 1)',
       '300': 'rgba(151, 206, 76, 0.3)',
+      '400': '#c0e193',
     },
     background: {
       default: '#e4a788',
+    },
+    grey: {
+      "300": 'rgb(238, 238, 238)',
     },
     secondary: {
       main: 'rgba(171, 213, 236, 1)',

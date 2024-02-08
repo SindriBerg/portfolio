@@ -34,6 +34,7 @@ import React, {
   SetStateAction,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -142,14 +143,31 @@ const PaginationButtons = (props: {
     handlePageChange(Number(e.target.value));
   }, [handlePageChange, props.amountOfPages]);
 
+  useLayoutEffect(() => {
+    const tableBody = document.querySelector('#table-body');
+    if (!tableBody) return;
+    // Check if the tableBody is at the bottom of the scroll
+    const isAtBottom = tableBody.scrollHeight - tableBody.scrollTop === tableBody.clientHeight;
+    // If the tableBody is at the bottom, add shadow to the pagination buttons
+    if (isAtBottom) {
+      const paginationButtons = document.querySelector('#pagination-buttons');
+      if (paginationButtons) {
+        paginationButtons.classList.add('top-shadow');
+      }
+    }
+  }, [handlePageChange, hasNextPage]);
+
+
   return (
     <Box
       display="flex"
       justifyContent="center"
       alignItems="center"
+      id="pagination-buttons"
       padding={1}
       sx={{
-        backgroundColor: 'secondary.main',
+        boxShadow: '0px 4px 16px rgba(151, 206, 76, 0.7)',
+        backgroundColor: 'background.paper',
         marginTop: 'auto',
         zIndex: 30,
         gap: 1
@@ -345,6 +363,16 @@ export default function CharacterTable() {
             <Box
               key={r.id}
               className="row-table-wrapper"
+              sx={{
+                ['& .scroll-shadow']: {
+                  boxShadow: `0px 4px 16px rgba(151, 206, 76, 0.7)`,
+                  transition: 'box-shadow 0.3s ease-in-out',
+                },
+                ['& .top-shadow']: {
+                  boxShadow: `0px 4px 16px rgba(151, 206, 76, 0.7)`,
+                  transition: 'box-shadow 0.3s ease-in-out',
+                },
+              }}
             // data-group-number={r.original.orderGroupNumber}
             >
               <CharacterRow {...r} />
